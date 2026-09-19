@@ -69,21 +69,40 @@ function readBody(req) {
     }
 
     var chunks = [];
+    var settled = false;
+    var timer = setTimeout(function () {
+      if (settled) return;
+      settled = true;
+      resolve({});
+    }, 2500);
+
+    function finish(value) {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      resolve(value);
+    }
+
     req.on('data', function (chunk) {
       chunks.push(chunk);
     });
     req.on('end', function () {
       try {
         if (!chunks.length) {
-          resolve({});
+          finish({});
           return;
         }
-        resolve(JSON.parse(Buffer.concat(chunks).toString('utf8') || '{}'));
+        finish(JSON.parse(Buffer.concat(chunks).toString('utf8') || '{}'));
       } catch (err) {
-        resolve({});
+        finish({});
       }
     });
-    req.on('error', reject);
+    req.on('error', function (err) {
+      clearTimeout(timer);
+      if (settled) return;
+      settled = true;
+      reject(err);
+    });
   });
 }
 

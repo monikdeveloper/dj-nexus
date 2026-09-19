@@ -279,7 +279,7 @@
       var phone = $.trim(DOM.fieldPhone.val() || '');
       var date = $.trim(DOM.fieldDate.val() || '');
       var message = $.trim(DOM.fieldMessage.val() || '');
-      var honey = $.trim($('#field-honey').val() || '');
+      var honey = $.trim((DOM.fieldHoney.val && DOM.fieldHoney.val()) || '');
       var validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
       var validPhone = phone.replace(/\D/g, '').length >= 7;
       var firstInvalid = null;

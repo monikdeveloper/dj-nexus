@@ -1,6 +1,6 @@
 'use strict';
 
-var CACHE_NAME = 'nexus-cache-v19';
+var CACHE_NAME = 'nexus-cache-v20';
 var CORE_ASSETS = [
   './',
   './index.html',

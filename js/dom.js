@@ -82,6 +82,7 @@ const DOM = {
   fieldPhone: $('#field-phone'),
   fieldDate: $('#field-date'),
   fieldMessage: $('#field-message'),
+  fieldHoney: $('#field-honey'),
   formFields: $('#field-name, #field-email, #field-phone, #field-date, #field-message'),
   formSubmitBtn: $('#form-submit-btn'),
   formError: $('#form-error'),
