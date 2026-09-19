@@ -29,6 +29,14 @@ const DOM = {
   // ----- hero -----
   heroSection: $('#hero'),
   heroCanvas: $('#hero-lighting-canvas'),
+  hero3dStage: $('#hero-3d-stage'),
+  heroTitle3d: $('#hero-title-3d'),
+  vinylDeck: $('#vinyl-deck'),
+  vinylDisc: $('#vinyl-disc'),
+  vinylHint: $('#vinyl-hint'),
+  vinylAudio: $('#vinyl-audio'),
+  heroWaveform: $('#hero .waveform'),
+  heroStrobe: $('#hero-strobe'),
   listenCta: $('#listen-cta'),
   bookCta: $('#book-cta'),
 
@@ -71,8 +79,11 @@ const DOM = {
   formResetBtn: $('#form-reset-btn'),
   fieldName: $('#field-name'),
   fieldEmail: $('#field-email'),
+  fieldPhone: $('#field-phone'),
   fieldDate: $('#field-date'),
   fieldMessage: $('#field-message'),
+  formFields: $('#field-name, #field-email, #field-phone, #field-date, #field-message'),
+  formSubmitBtn: $('#form-submit-btn'),
   formError: $('#form-error'),
 
   // ----- footer -----

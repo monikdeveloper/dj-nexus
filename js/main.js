@@ -211,6 +211,7 @@
       var playing = card.hasClass('is-playing');
 
       stopMixes(btn);
+      if (window.Hero3D && Hero3D.stop) Hero3D.stop();
 
       if (playing) {
         card.removeClass('is-playing');
@@ -232,28 +233,135 @@
     });
   }
 
-  /* ----- contact form ----- */
+  /* ----- contact form → Gmail SMTP via /api/contact ----- */
+  function setFormBusy(busy) {
+    if (!DOM.formSubmitBtn.length) return;
+    DOM.formSubmitBtn.prop('disabled', busy).text(busy ? 'Sending…' : 'Send booking inquiry');
+  }
+
+  function showFormError(message) {
+    var text = 'Could not send right now. Email monik.developer@gmail.com directly.';
+    if (typeof message === 'string' && message.trim()) text = message.trim();
+    else if (message && typeof message.message === 'string' && message.message.trim()) text = message.message.trim();
+    DOM.formError.removeClass('hidden').text(text);
+  }
+
+  function errorFromPayload(payload, xhr) {
+    if (typeof payload === 'string' && payload.trim()) return payload.trim();
+    if (payload && typeof payload.error === 'string' && payload.error.trim()) return payload.error.trim();
+    if (payload && payload.error && typeof payload.error.message === 'string') return payload.error.message;
+    if (payload && typeof payload.message === 'string') return payload.message;
+    if (xhr && xhr.status === 404) return 'Mail API is only live on Vercel. Deploy the latest site, then try again.';
+    if (xhr && xhr.status === 503) return 'Mail is not configured yet. Add GMAIL_USER and GMAIL_APP_PASSWORD on Vercel.';
+    return '';
+  }
+
+  function clearFieldErrors() {
+    DOM.formFields.removeClass('is-invalid').removeAttr('aria-invalid');
+  }
+
+  function markInvalid(field) {
+    field.addClass('is-invalid').attr('aria-invalid', 'true');
+  }
+
   function bindForm() {
+    DOM.formFields.on('input change', function () {
+      $(this).removeClass('is-invalid').removeAttr('aria-invalid');
+      if (!DOM.formFields.filter('.is-invalid').length) {
+        DOM.formError.addClass('hidden').text('');
+      }
+    });
+
     DOM.contactForm.on('submit', function (event) {
       event.preventDefault();
       var name = $.trim(DOM.fieldName.val() || '');
       var email = $.trim(DOM.fieldEmail.val() || '');
+      var phone = $.trim(DOM.fieldPhone.val() || '');
+      var date = $.trim(DOM.fieldDate.val() || '');
       var message = $.trim(DOM.fieldMessage.val() || '');
+      var honey = $.trim($('#field-honey').val() || '');
       var validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+      var validPhone = phone.replace(/\D/g, '').length >= 7;
+      var firstInvalid = null;
 
-      if (!name || !validEmail || !message) {
-        DOM.formError.removeClass('hidden').text('Please add your name, a valid email, and a short message.');
+      if (honey) return;
+
+      clearFieldErrors();
+
+      if (!name) {
+        markInvalid(DOM.fieldName);
+        if (!firstInvalid) firstInvalid = DOM.fieldName;
+      }
+      if (!validEmail) {
+        markInvalid(DOM.fieldEmail);
+        if (!firstInvalid) firstInvalid = DOM.fieldEmail;
+      }
+      if (!validPhone) {
+        markInvalid(DOM.fieldPhone);
+        if (!firstInvalid) firstInvalid = DOM.fieldPhone;
+      }
+      if (!date) {
+        markInvalid(DOM.fieldDate);
+        if (!firstInvalid) firstInvalid = DOM.fieldDate;
+      }
+      if (!message) {
+        markInvalid(DOM.fieldMessage);
+        if (!firstInvalid) firstInvalid = DOM.fieldMessage;
+      }
+
+      if (firstInvalid) {
+        DOM.formError.removeClass('hidden').text('Please fill in the highlighted fields.');
+        firstInvalid.trigger('focus');
         return;
       }
 
       DOM.formError.addClass('hidden').text('');
-      DOM.contactForm.addClass('hidden');
-      DOM.formSuccess.removeClass('hidden');
+      setFormBusy(true);
+
+      $.ajax({
+        url: '/api/contact',
+        method: 'POST',
+        contentType: 'application/json',
+        dataType: 'json',
+        data: JSON.stringify({
+          name: name,
+          email: email,
+          phone: phone,
+          date: date,
+          message: message,
+          honey: honey
+        })
+      })
+        .done(function (payload) {
+          if (!payload || payload.ok === false) {
+            showFormError(errorFromPayload(payload) || 'Could not send right now. Try again.');
+            return;
+          }
+          DOM.contactForm.addClass('hidden');
+          DOM.formSuccess.removeClass('hidden');
+        })
+        .fail(function (xhr) {
+          var payload = xhr.responseJSON;
+          if (!payload && xhr.responseText) {
+            try {
+              payload = JSON.parse(xhr.responseText);
+            } catch (err) {
+              payload = null;
+            }
+          }
+          showFormError(errorFromPayload(payload, xhr));
+        })
+        .always(function () {
+          setFormBusy(false);
+        });
     });
 
     DOM.formResetBtn.on('click', function () {
+      clearFieldErrors();
       DOM.contactForm.trigger('reset').removeClass('hidden');
       DOM.formSuccess.addClass('hidden');
+      DOM.formError.addClass('hidden').text('');
+      setFormBusy(false);
     });
   }
 
@@ -300,6 +408,7 @@
   $(function () {
     Theme.init();
     Lighting.init();
+    Hero3D.init();
     Smoke.init();
     bindNav();
     bindMobileMenu();

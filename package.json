@@ -1,0 +1,8 @@
+{
+  "name": "dj-nexus",
+  "private": true,
+  "description": "DJ NEXUS static portfolio with a Vercel contact API.",
+  "dependencies": {
+    "nodemailer": "^10.0.10"
+  }
+}

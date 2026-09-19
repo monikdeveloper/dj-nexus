@@ -1,6 +1,6 @@
 'use strict';
 
-var CACHE_NAME = 'nexus-cache-v2';
+var CACHE_NAME = 'nexus-cache-v19';
 var CORE_ASSETS = [
   './',
   './index.html',
@@ -8,6 +8,7 @@ var CORE_ASSETS = [
   './js/dom.js',
   './js/theme.js',
   './js/lighting.js',
+  './js/hero3d.js',
   './js/smoke.js',
   './js/main.js',
   './manifest.json',
